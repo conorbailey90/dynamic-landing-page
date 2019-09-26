@@ -39,21 +39,55 @@ function addTask(e){
     
         list.appendChild(li);
 
+        storeTaskInLocalStorage(taskInput.value);
+
         taskInput.value = '';
     }else{
         alert('Input is empty! Please add a task.');
     }
-
 }
 
 function deleteTask(e){
-    console.log(e.target);
-    if (e.target.className === 'list-item'){
-        e.target.remove();
+  if (e.target.className === 'list-item'){
+    if (confirm('Are your sure you want to delete this task?')){
+      e.target.remove();
+      removeTaskFromLocalStorage(e.target);
     }
-    
+  }    
 }
 
+
+// Store Task
+function storeTaskInLocalStorage(task) {
+  let tasks;
+  if (localStorage.getItem("tasks") === null) {
+    tasks = [];
+  } else {
+    tasks = JSON.parse(localStorage.getItem("tasks"));
+  }
+  tasks.push(task);
+
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+// Remove from local storage
+
+function removeTaskFromLocalStorage(taskItem) {
+  let tasks;
+  if (localStorage.getItem("tasks") === null) {
+    tasks = [];
+  } else {
+    tasks = JSON.parse(localStorage.getItem("tasks"));
+  }
+
+  tasks.forEach(function(task, index) {
+    if (taskItem.textContent === task) {
+      tasks.splice(index, 1);
+    }
+  });
+
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
 
 // Weather Section
 
@@ -96,14 +130,48 @@ function getName(){
   }
 }
 
+// Get tasks from local storage
+function getTasks() {
+  let tasks;
+  if (localStorage.getItem("tasks") === null) {
+    tasks = [];
+  } else {
+   tasks = JSON.parse(localStorage.getItem("tasks"));
+  };
+
+  tasks.forEach(function(task) {
+    //Create li element
+  
+    const li = document.createElement("li");
+    // Add class
+    li.className='list-item';
+    // Create text node and append to li
+    li.appendChild(document.createTextNode(task));
+    
+    // Append the li to the ul
+    taskList.appendChild(li);
+  });
+}
+
 // Event Listeners
 submit.addEventListener('click', addTask);
+
 taskList.addEventListener('click', deleteTask);
+
 name.addEventListener('blur', (e)=>{
   localStorage.setItem('name', name.innerText);
-})
+});
 
+submit.addEventListener('click',(e)=>{
+  localStorage.setItem('tasklist', JSON.stringify(list.children));
+});
+
+list.addEventListener('click', (e)=>{
+  localStorage.setItem('tasklist', JSON.stringify(list.children));
+});
 
 // Run
 showTime();
 getName();
+getTasks();
+
